@@ -132,9 +132,7 @@ const connectDB = async () => {
     app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
-      console.log(`Server running on port ${PORT}`);
-      console.log(`API available at http://localhost:${PORT}/api`);
-    });
+    
   } catch (error) {
     console.error('MongoDB connection error:', error);
     process.exit(1);

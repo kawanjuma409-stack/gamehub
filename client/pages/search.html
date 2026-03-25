@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search - GameHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <i class="fas fa-gamepad"></i>
+        <span>GameHub</span>
+      </a>
+      
+      <div class="nav-search">
+        <input type="text" id="searchInput" placeholder="Search posts, users, tags...">
+        <button id="searchBtn"><i class="fas fa-search"></i></button>
+      </div>
+      
+      <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="explore.html" class="nav-link"><i class="fas fa-compass"></i> Explore</a>
+        <a href="notifications.html" class="nav-link" id="navNotifications">
+          <i class="fas fa-bell"></i> Notifications
+          <span class="badge" id="notificationBadge" style="display: none;">0</span>
+        </a>
+        <a href="profile.html" class="nav-link" id="navProfile"><i class="fas fa-user"></i> Profile</a>
+      </div>
+      
+      <div class="nav-auth" id="navAuth">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+      
+      <div class="nav-user" id="navUser" style="display: none;">
+        <div class="user-menu">
+          <img src="" alt="Avatar" class="user-avatar" id="navAvatar">
+          <span id="navUsername"></span>
+          <i class="fas fa-chevron-down"></i>
+          <div class="dropdown-menu">
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            <hr>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+      
+      <button class="nav-toggle" id="navToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container search-page">
+    <section class="search-results-section">
+      <div class="search-header">
+        <h1>Search Results</h1>
+        <p id="searchQuery">Searching for...</p>
+      </div>
+      
+      <div class="search-tabs">
+        <button class="tab-btn active" data-tab="all">All</button>
+        <button class="tab-btn" data-tab="posts">Posts</button>
+        <button class="tab-btn" data-tab="users">Users</button>
+      </div>
+      
+      <div class="tab-content active" id="allTab">
+        <div class="search-results" id="allResults">
+          <div class="loading">Searching...</div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="postsTab">
+        <div class="search-results" id="postsResults">
+          <div class="loading">Searching posts...</div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="usersTab">
+        <div class="search-results" id="usersResults">
+          <div class="loading">Searching users...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Search page specific code
+    let currentQuery = '';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initNavigation();
+      
+      // Get search query from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      currentQuery = urlParams.get('q') || '';
+      
+      if (!currentQuery) {
+        document.getElementById('allResults').innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <p>Enter a search query</p>
+          </div>
+        `;
+        return;
+      }
+      
+      document.getElementById('searchQuery').textContent = `Searching for "${currentQuery}"`;
+      document.getElementById('searchInput').value = currentQuery;
+      
+      // Perform search
+      await performSearch(currentQuery);
+      
+      // Tab switching
+      document.querySelectorAll('.search-tabs .tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.search-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+        });
+      });
+    });
+
+    async function performSearch(query) {
+      try {
+        const result = await API.search.all(query);
+        
+        if (result.success) {
+          const { posts, users } = result.data;
+          
+          // All results
+          const allResults = document.getElementById('allResults');
+          if (posts.length === 0 && users.length === 0) {
+            allResults.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <p>No results found for "${query}"</p>
+                <span>Try different keywords or check your spelling</span>
+              </div>
+            `;
+          } else {
+            allResults.innerHTML = '';
+            if (users.length > 0) {
+              allResults.innerHTML += `
+                <h3 class="results-section-title">Users</h3>
+                <div class="users-grid">
+                  ${users.map(user => createUserCardHTML(user)).join('')}
+                </div>
+              `;
+            }
+            if (posts.length > 0) {
+              allResults.innerHTML += `
+                <h3 class="results-section-title">Posts</h3>
+                <div class="posts-list">
+                  ${posts.map(post => createPostHTML(post)).join('')}
+                </div>
+              `;
+            }
+          }
+          
+          // Posts only
+          const postsResults = document.getElementById('postsResults');
+          if (posts.length === 0) {
+            postsResults.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No posts found</p>
+              </div>
+            `;
+          } else {
+            postsResults.innerHTML = `<div class="posts-list">${posts.map(post => createPostHTML(post)).join('')}</div>`;
+          }
+          
+          // Users only
+          const usersResults = document.getElementById('usersResults');
+          if (users.length === 0) {
+            usersResults.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>No users found</p>
+              </div>
+            `;
+          } else {
+            usersResults.innerHTML = `<div class="users-grid">${users.map(user => createUserCardHTML(user)).join('')}</div>`;
+          }
+          
+          // Attach event listeners
+          attachPostEventListeners(document);
+          attachUserEventListeners(document);
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        document.getElementById('allResults').innerHTML = '<div class="error">Search failed. Please try again.</div>';
+      }
+    }
+
+    function createUserCardHTML(user) {
+      return `
+        <div class="user-card" data-username="${user.username}">
+          <img src="${user.avatar || '../assets/default-avatar.png'}" alt="${user.username}" class="user-card-avatar">
+          <div class="user-card-info">
+            <h4>${user.username}</h4>
+            <p>${user.bio ? escapeHtml(user.bio.substring(0, 100)) : 'No bio'}</p>
+            <div class="user-card-stats">
+              <span><i class="fas fa-file-alt"></i> ${user.postsCount || 0} posts</span>
+              <span><i class="fas fa-users"></i> ${user.followers?.length || 0} followers</span>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm follow-btn" data-id="${user._id}">
+            <i class="fas fa-user-plus"></i> Follow
+          </button>
+        </div>
+      `;
+    }
+
+    function createPostHTML(post) {
+      const timeAgo = formatTimeAgo(post.createdAt);
+      const isLiked = post.isLiked || false;
+      
+      return `
+        <article class="post" data-id="${post._id}">
+          <div class="post-header">
+            <a href="profile.html?user=${post.author.username}" class="post-author">
+              <img src="${post.author.avatar || '../assets/default-avatar.png'}" alt="${post.author.username}" class="author-avatar">
+              <div class="author-info">
+                <span class="author-name">${post.author.username}</span>
+                <span class="post-time">${timeAgo}</span>
+              </div>
+            </a>
+          </div>
+          <div class="post-content">
+            <p>${escapeHtml(post.content)}</p>
+            ${post.image ? `<img src="${API_BASE_URL}${post.image}" alt="Post image" class="post-image">` : ''}
+          </div>
+          ${post.tags && post.tags.length > 0 ? `
+            <div class="post-tags">
+              ${post.tags.map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`).join('')}
+            </div>
+          ` : ''}
+          <div class="post-actions">
+            <button class="action-btn like-btn ${isLiked ? 'active' : ''}" data-id="${post._id}">
+              <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+              <span>${post.likesCount || 0}</span>
+            </button>
+            <button class="action-btn comment-btn" data-id="${post._id}">
+              <i class="far fa-comment"></i>
+              <span>${post.commentsCount || 0}</span>
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    function attachPostEventListeners(container) {
+      container.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!Auth.isLoggedIn()) {
+            showToast('Please login to like posts', 'error');
+            return;
+          }
+          
+          const postId = btn.dataset.id;
+          try {
+            const result = await API.posts.like(postId);
+            if (result.success) {
+              btn.classList.toggle('active', result.data.liked);
+              btn.querySelector('i').className = result.data.liked ? 'fas fa-heart' : 'far fa-heart';
+              btn.querySelector('span').textContent = result.data.likesCount;
+            }
+          } catch (error) {
+            showToast('Failed to like post', 'error');
+          }
+        });
+      });
+      
+      container.querySelectorAll('.comment-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.location.href = `post.html?id=${btn.dataset.id}`;
+        });
+      });
+      
+      container.querySelectorAll('.post').forEach(post => {
+        post.addEventListener('click', (e) => {
+          if (!e.target.closest('.action-btn')) {
+            window.location.href = `post.html?id=${post.dataset.id}`;
+          }
+        });
+      });
+    }
+
+    function attachUserEventListeners(container) {
+      container.querySelectorAll('.user-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (!e.target.closest('.follow-btn')) {
+            window.location.href = `profile.html?user=${card.dataset.username}`;
+          }
+        });
+      });
+      
+      container.querySelectorAll('.follow-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!Auth.isLoggedIn()) {
+            showToast('Please login to follow users', 'error');
+            return;
+          }
+          
+          try {
+            const result = await API.users.follow(btn.dataset.id);
+            if (result.success) {
+              btn.innerHTML = result.data.following 
+                ? '<i class="fas fa-user-check"></i> Following' 
+                : '<i class="fas fa-user-plus"></i> Follow';
+              btn.classList.toggle('btn-primary', result.data.following);
+              btn.classList.toggle('btn-outline', !result.data.following);
+            }
+          } catch (error) {
+            showToast('Failed to follow user', 'error');
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

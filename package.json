@@ -1,0 +1,23 @@
+{
+  "name": "gaming-community",
+  "version": "1.0.0",
+  "description": "Full-stack gaming community platform",
+  "main": "server/server.js",
+  "scripts": {
+    "install:all": "npm install && cd server && npm install",
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run dev",
+    "client": "cd client && python3 -m http.server 3000",
+    "setup": "npm run install:all && echo 'Setup complete! Run npm run dev to start server and npm run client to start frontend'"
+  },
+  "keywords": [
+    "gaming",
+    "community",
+    "social",
+    "nodejs",
+    "mongodb",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT"
+}

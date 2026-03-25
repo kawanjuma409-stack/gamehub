@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - GameHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <i class="fas fa-gamepad"></i>
+        <span>GameHub</span>
+      </a>
+      
+      <div class="nav-search">
+        <input type="text" id="searchInput" placeholder="Search posts, users, tags...">
+        <button id="searchBtn"><i class="fas fa-search"></i></button>
+      </div>
+      
+      <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="explore.html" class="nav-link"><i class="fas fa-compass"></i> Explore</a>
+        <a href="notifications.html" class="nav-link" id="navNotifications">
+          <i class="fas fa-bell"></i> Notifications
+          <span class="badge" id="notificationBadge" style="display: none;">0</span>
+        </a>
+        <a href="profile.html" class="nav-link" id="navProfile"><i class="fas fa-user"></i> Profile</a>
+      </div>
+      
+      <div class="nav-auth" id="navAuth">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+      
+      <div class="nav-user" id="navUser" style="display: none;">
+        <div class="user-menu">
+          <img src="" alt="Avatar" class="user-avatar" id="navAvatar">
+          <span id="navUsername"></span>
+          <i class="fas fa-chevron-down"></i>
+          <div class="dropdown-menu">
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            <hr>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+      
+      <button class="nav-toggle" id="navToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container settings-page">
+    <div class="settings-container">
+      <!-- Settings Sidebar -->
+      <aside class="settings-sidebar">
+        <h2>Settings</h2>
+        <nav class="settings-nav">
+          <a href="#account" class="active"><i class="fas fa-user"></i> Account</a>
+          <a href="#privacy"><i class="fas fa-shield-alt"></i> Privacy</a>
+          <a href="#notifications"><i class="fas fa-bell"></i> Notifications</a>
+          <a href="#appearance"><i class="fas fa-palette"></i> Appearance</a>
+          <a href="#security"><i class="fas fa-lock"></i> Security</a>
+        </nav>
+      </aside>
+
+      <!-- Settings Content -->
+      <section class="settings-content">
+        <!-- Account Settings -->
+        <div class="settings-section" id="account">
+          <h3>Account Settings</h3>
+          
+          <div class="settings-card">
+            <h4>Profile Information</h4>
+            <p>Update your profile information visible to other users</p>
+            <a href="profile.html" class="btn btn-outline">Edit Profile</a>
+          </div>
+          
+          <div class="settings-card">
+            <h4>Email Address</h4>
+            <p id="currentEmail">Loading...</p>
+            <button class="btn btn-text" id="changeEmailBtn">Change Email</button>
+          </div>
+          
+          <div class="settings-card">
+            <h4>Password</h4>
+            <p>Change your password to keep your account secure</p>
+            <button class="btn btn-outline" id="changePasswordBtn">Change Password</button>
+          </div>
+          
+          <div class="settings-card danger">
+            <h4>Delete Account</h4>
+            <p>Once you delete your account, there is no going back. Please be certain.</p>
+            <button class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
+          </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="settings-section" id="privacy" style="display: none;">
+          <h3>Privacy Settings</h3>
+          
+          <div class="settings-card">
+            <h4>Profile Visibility</h4>
+            <div class="setting-item">
+              <div>
+                <label>Public Profile</label>
+                <p>Allow anyone to view your profile</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="settings-card">
+            <h4>Activity Status</h4>
+            <div class="setting-item">
+              <div>
+                <label>Show Online Status</label>
+                <p>Let others see when you're online</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="settings-section" id="notifications" style="display: none;">
+          <h3>Notification Settings</h3>
+          
+          <div class="settings-card">
+            <h4>Email Notifications</h4>
+            <div class="setting-item">
+              <div>
+                <label>New Followers</label>
+                <p>Get notified when someone follows you</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <div>
+                <label>Post Interactions</label>
+                <p>Get notified about likes and comments</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance Settings -->
+        <div class="settings-section" id="appearance" style="display: none;">
+          <h3>Appearance</h3>
+          
+          <div class="settings-card">
+            <h4>Theme</h4>
+            <div class="theme-options">
+              <label class="theme-option active">
+                <input type="radio" name="theme" value="dark" checked>
+                <div class="theme-preview dark"></div>
+                <span>Dark</span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="light">
+                <div class="theme-preview light"></div>
+                <span>Light</span>
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="auto">
+                <div class="theme-preview auto"></div>
+                <span>Auto</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="settings-section" id="security" style="display: none;">
+          <h3>Security</h3>
+          
+          <div class="settings-card">
+            <h4>Two-Factor Authentication</h4>
+            <p>Add an extra layer of security to your account</p>
+            <button class="btn btn-outline">Enable 2FA</button>
+          </div>
+          
+          <div class="settings-card">
+            <h4>Active Sessions</h4>
+            <p>Manage your active login sessions</p>
+            <button class="btn btn-text">View Sessions</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Change Password Modal -->
+  <div class="modal" id="changePasswordModal" style="display: none;">
+    <div class="modal-content modal-small">
+      <div class="modal-header">
+        <h2>Change Password</h2>
+        <button class="modal-close" id="closePasswordModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="changePasswordForm">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" required>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" required>
+            <small>At least 6 characters</small>
+          </div>
+          <div class="form-group">
+            <label for="confirmNewPassword">Confirm New Password</label>
+            <input type="password" id="confirmNewPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Change Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Settings page specific code
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if logged in
+      if (!Auth.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      initNavigation();
+      
+      // Load user info
+      const user = Auth.getUser();
+      document.getElementById('currentEmail').textContent = user.email;
+      
+      // Settings navigation
+      document.querySelectorAll('.settings-nav a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = link.getAttribute('href').substring(1);
+          
+          // Update active nav
+          document.querySelectorAll('.settings-nav a').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          
+          // Show target section
+          document.querySelectorAll('.settings-section').forEach(s => s.style.display = 'none');
+          document.getElementById(target).style.display = 'block';
+        });
+      });
+      
+      // Change password modal
+      document.getElementById('changePasswordBtn').addEventListener('click', () => {
+        document.getElementById('changePasswordModal').style.display = 'flex';
+      });
+      
+      document.getElementById('closePasswordModal').addEventListener('click', () => {
+        document.getElementById('changePasswordModal').style.display = 'none';
+      });
+      
+      document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+        
+        if (newPassword !== confirmNewPassword) {
+          showToast('Passwords do not match', 'error');
+          return;
+        }
+        
+        if (newPassword.length < 6) {
+          showToast('Password must be at least 6 characters', 'error');
+          return;
+        }
+        
+        // This would be an API call in a real app
+        showToast('Password changed successfully', 'success');
+        document.getElementById('changePasswordModal').style.display = 'none';
+      });
+      
+      // Delete account
+      document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+          if (confirm('This will permanently delete all your data. Type "DELETE" to confirm.')) {
+            showToast('Account deletion request submitted', 'info');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

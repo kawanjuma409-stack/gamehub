@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameHub - Gaming Community</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <i class="fas fa-gamepad"></i>
+        <span>GameHub</span>
+      </a>
+      
+      <div class="nav-search">
+        <input type="text" id="searchInput" placeholder="Search posts, users, tags...">
+        <button id="searchBtn"><i class="fas fa-search"></i></button>
+      </div>
+      
+      <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+        <a href="pages/explore.html" class="nav-link"><i class="fas fa-compass"></i> Explore</a>
+        <a href="pages/notifications.html" class="nav-link" id="navNotifications">
+          <i class="fas fa-bell"></i> Notifications
+          <span class="badge" id="notificationBadge" style="display: none;">0</span>
+        </a>
+        <a href="pages/profile.html" class="nav-link" id="navProfile"><i class="fas fa-user"></i> Profile</a>
+      </div>
+      
+      <div class="nav-auth" id="navAuth">
+        <a href="pages/login.html" class="btn btn-outline">Login</a>
+        <a href="pages/register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+      
+      <div class="nav-user" id="navUser" style="display: none;">
+        <div class="user-menu">
+          <img src="" alt="Avatar" class="user-avatar" id="navAvatar">
+          <span id="navUsername"></span>
+          <i class="fas fa-chevron-down"></i>
+          <div class="dropdown-menu">
+            <a href="pages/profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="pages/settings.html"><i class="fas fa-cog"></i> Settings</a>
+            <hr>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+      
+      <button class="nav-toggle" id="navToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <!-- Left Sidebar -->
+    <aside class="sidebar sidebar-left">
+      <div class="sidebar-section">
+        <h3>Trending Tags</h3>
+        <div class="tag-list" id="trendingTags">
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>Online Users</h3>
+        <div class="user-list" id="onlineUsers">
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Feed -->
+    <section class="feed">
+      <!-- Create Post -->
+      <div class="create-post" id="createPostSection" style="display: none;">
+        <div class="create-post-header">
+          <img src="" alt="Avatar" class="user-avatar" id="createPostAvatar">
+          <textarea id="postContent" placeholder="What's on your mind? Share your gaming moments..." maxlength="2000"></textarea>
+        </div>
+        <div class="create-post-actions">
+          <div class="post-options">
+            <button class="option-btn" id="addImageBtn" title="Add Image">
+              <i class="fas fa-image"></i>
+            </button>
+            <button class="option-btn" id="addTagBtn" title="Add Tags">
+              <i class="fas fa-hashtag"></i>
+            </button>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          </div>
+          <div class="post-tags" id="postTags"></div>
+          <button class="btn btn-primary" id="submitPost">Post</button>
+        </div>
+        <div class="image-preview" id="imagePreview" style="display: none;">
+          <img src="" alt="Preview">
+          <button class="remove-image" id="removeImage"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+
+      <!-- Feed Filter -->
+      <div class="feed-filter">
+        <button class="filter-btn active" data-filter="latest">Latest</button>
+        <button class="filter-btn" data-filter="popular">Popular</button>
+        <button class="filter-btn" data-filter="following">Following</button>
+      </div>
+
+      <!-- Posts Container -->
+      <div class="posts-container" id="postsContainer">
+        <div class="loading">Loading posts...</div>
+      </div>
+
+      <!-- Load More -->
+      <div class="load-more" id="loadMore" style="display: none;">
+        <button class="btn btn-outline">Load More</button>
+      </div>
+    </section>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar sidebar-right">
+      <div class="sidebar-section">
+        <h3>Community Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="totalUsers">-</span>
+            <span class="stat-label">Users</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="totalPosts">-</span>
+            <span class="stat-label">Posts</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="onlineCount">-</span>
+            <span class="stat-label">Online</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>Top Contributors</h3>
+        <div class="user-list" id="topContributors">
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>About GameHub</h3>
+        <p class="about-text">
+          A community for gamers to connect, share experiences, and discuss their favorite games.
+        </p>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-discord"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-twitch"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Welcome Back</h2>
+        <button class="modal-close" id="closeLoginModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Login</button>
+        </form>
+        <p class="form-footer">
+          Don't have an account? <a href="pages/register.html">Sign up</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tag Input Modal -->
+  <div class="modal" id="tagModal" style="display: none;">
+    <div class="modal-content modal-small">
+      <div class="modal-header">
+        <h2>Add Tags</h2>
+        <button class="modal-close" id="closeTagModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Tags (max 5)</label>
+          <div class="tag-input-container" id="tagInputContainer">
+            <input type="text" id="tagInput" placeholder="Type and press Enter">
+          </div>
+          <small>Press Enter to add a tag</small>
+        </div>
+        <button class="btn btn-primary btn-block" id="confirmTags">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

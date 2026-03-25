@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - GameHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <i class="fas fa-gamepad"></i>
+        <span>GameHub</span>
+      </a>
+      
+      <div class="nav-search">
+        <input type="text" id="searchInput" placeholder="Search posts, users, tags...">
+        <button id="searchBtn"><i class="fas fa-search"></i></button>
+      </div>
+      
+      <div class="nav-links" id="navLinks">
+        <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="explore.html" class="nav-link"><i class="fas fa-compass"></i> Explore</a>
+        <a href="notifications.html" class="nav-link active" id="navNotifications">
+          <i class="fas fa-bell"></i> Notifications
+          <span class="badge" id="notificationBadge" style="display: none;">0</span>
+        </a>
+        <a href="profile.html" class="nav-link" id="navProfile"><i class="fas fa-user"></i> Profile</a>
+      </div>
+      
+      <div class="nav-auth" id="navAuth">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="register.html" class="btn btn-primary">Sign Up</a>
+      </div>
+      
+      <div class="nav-user" id="navUser" style="display: none;">
+        <div class="user-menu">
+          <img src="" alt="Avatar" class="user-avatar" id="navAvatar">
+          <span id="navUsername"></span>
+          <i class="fas fa-chevron-down"></i>
+          <div class="dropdown-menu">
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            <hr>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+      
+      <button class="nav-toggle" id="navToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-container notifications-page">
+    <section class="notifications-section">
+      <div class="notifications-header">
+        <h1>Notifications</h1>
+        <div class="notifications-actions">
+          <button class="btn btn-text" id="markAllRead">
+            <i class="fas fa-check-double"></i> Mark all as read
+          </button>
+          <button class="btn btn-text btn-danger" id="clearAll">
+            <i class="fas fa-trash"></i> Clear all
+          </button>
+        </div>
+      </div>
+      
+      <div class="notifications-filter">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="unread">Unread</button>
+        <button class="filter-btn" data-filter="likes">Likes</button>
+        <button class="filter-btn" data-filter="comments">Comments</button>
+        <button class="filter-btn" data-filter="follows">Follows</button>
+      </div>
+      
+      <div class="notifications-list" id="notificationsList">
+        <div class="loading">Loading notifications...</div>
+      </div>
+      
+      <div class="load-more" id="loadMore" style="display: none;">
+        <button class="btn btn-outline">Load More</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Notifications page specific code
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if logged in
+      if (!Auth.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Initialize navigation
+      initNavigation();
+      
+      // Load notifications
+      await loadNotifications();
+      
+      // Mark all as read
+      document.getElementById('markAllRead').addEventListener('click', async () => {
+        try {
+          const result = await API.notifications.markAllRead();
+          if (result.success) {
+            showToast('All notifications marked as read', 'success');
+            await loadNotifications();
+            updateNotificationBadge();
+          }
+        } catch (error) {
+          showToast('Failed to mark notifications as read', 'error');
+        }
+      });
+      
+      // Filter buttons
+      document.querySelectorAll('.notifications-filter .filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.notifications-filter .filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const filter = btn.dataset.filter;
+          loadNotifications(filter === 'all' ? null : filter);
+        });
+      });
+    });
+
+    async function loadNotifications(filter = null) {
+      const container = document.getElementById('notificationsList');
+      container.innerHTML = '<div class="loading">Loading notifications...</div>';
+      
+      try {
+        const options = {};
+        if (filter === 'unread') options.unreadOnly = true;
+        
+        const result = await API.notifications.getAll(options);
+        
+        if (!result.success || result.data.notifications.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-bell-slash"></i>
+              <p>No notifications yet</p>
+              <span>When someone interacts with your posts, you'll see it here</span>
+            </div>
+          `;
+          return;
+        }
+        
+        let notifications = result.data.notifications;
+        
+        // Client-side filtering for type
+        if (filter && ['likes', 'comments', 'follows'].includes(filter)) {
+          const typeMap = { likes: 'like', comments: 'comment', follows: 'follow' };
+          notifications = notifications.filter(n => n.type === typeMap[filter]);
+        }
+        
+        container.innerHTML = notifications.map(notification => createNotificationHTML(notification)).join('');
+        
+        // Add click handlers
+        container.querySelectorAll('.notification-item').forEach(item => {
+          item.addEventListener('click', async () => {
+            const notificationId = item.dataset.id;
+            const notification = notifications.find(n => n._id === notificationId);
+            
+            // Mark as read
+            if (!notification.isRead) {
+              await API.notifications.markAsRead(notificationId);
+              item.classList.remove('unread');
+              updateNotificationBadge();
+            }
+            
+            // Navigate to relevant content
+            if (notification.post) {
+              window.location.href = `post.html?id=${notification.post._id}`;
+            } else if (notification.type === 'follow') {
+              window.location.href = `profile.html?user=${notification.sender.username}`;
+            }
+          });
+        });
+        
+      } catch (error) {
+        console.error('Load notifications error:', error);
+        container.innerHTML = '<div class="error">Failed to load notifications</div>';
+      }
+    }
+
+    function createNotificationHTML(notification) {
+      const iconMap = {
+        like: 'fa-heart',
+        comment: 'fa-comment',
+        reply: 'fa-reply',
+        follow: 'fa-user-plus',
+        mention: 'fa-at'
+      };
+      
+      const timeAgo = formatTimeAgo(notification.createdAt);
+      
+      return `
+        <div class="notification-item ${notification.isRead ? '' : 'unread'}" data-id="${notification._id}">
+          <div class="notification-icon ${notification.type}">
+            <i class="fas ${iconMap[notification.type] || 'fa-bell'}"></i>
+          </div>
+          <div class="notification-content">
+            <img src="${notification.sender.avatar || '../assets/default-avatar.png'}" alt="${notification.sender.username}" class="notification-avatar">
+            <div class="notification-text">
+              <p><strong>${notification.sender.username}</strong> ${notification.message.replace(notification.sender.username, '').trim()}</p>
+              <span class="notification-time">${timeAgo}</span>
+            </div>
+          </div>
+          ${!notification.isRead ? '<span class="unread-dot"></span>' : ''}
+        </div>
+      `;
+    }
+
+    async function updateNotificationBadge() {
+      try {
+        const result = await API.notifications.getUnreadCount();
+        if (result.success) {
+          const badge = document.getElementById('notificationBadge');
+          if (result.data.count > 0) {
+            badge.textContent = result.data.count > 99 ? '99+' : result.data.count;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (error) {
+        console.error('Update badge error:', error);
+      }
+    }
+  </script>
+</body>
+</html>

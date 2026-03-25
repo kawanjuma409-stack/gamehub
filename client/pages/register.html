@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - GameHub</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="/" class="auth-logo">
+          <i class="fas fa-gamepad"></i>
+          <span>GameHub</span>
+        </a>
+        <h1>Create Account</h1>
+        <p>Join the ultimate gaming community today</p>
+      </div>
+      
+      <form id="registerForm" class="auth-form">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" id="username" name="username" placeholder="Choose a username" required>
+          </div>
+          <span class="error-message" id="usernameError"></span>
+          <small>3-20 characters, letters, numbers, and underscores only</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+          </div>
+          <span class="error-message" id="emailError"></span>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" name="password" placeholder="Create a password" required>
+            <button type="button" class="toggle-password" id="togglePassword">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <span class="error-message" id="passwordError"></span>
+          <small>At least 6 characters</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+          </div>
+          <span class="error-message" id="confirmPasswordError"></span>
+        </div>
+        
+        <div class="form-group">
+          <label class="checkbox">
+            <input type="checkbox" id="agreeTerms" required>
+            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+          </label>
+          <span class="error-message" id="termsError"></span>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+          <span>Create Account</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
+      
+      <div class="auth-divider">
+        <span>or</span>
+      </div>
+      
+      <div class="social-auth">
+        <button class="btn btn-social btn-google">
+          <i class="fab fa-google"></i>
+          <span>Sign up with Google</span>
+        </button>
+        <button class="btn btn-social btn-discord">
+          <i class="fab fa-discord"></i>
+          <span>Sign up with Discord</span>
+        </button>
+      </div>
+      
+      <div class="auth-footer">
+        <p>Already have an account? <a href="login.html">Sign in</a></p>
+      </div>
+    </div>
+    
+    <div class="auth-image">
+      <div class="auth-image-content">
+        <h2>Why Join GameHub?</h2>
+        <p>Become part of a thriving community of passionate gamers from around the world.</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Share your gaming achievements</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Find teammates and friends</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Get game recommendations</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Participate in tournaments</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Register page specific code
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if already logged in
+      if (Auth.isLoggedIn()) {
+        window.location.href = '/';
+        return;
+      }
+
+      const registerForm = document.getElementById('registerForm');
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+
+      // Toggle password visibility
+      togglePassword.addEventListener('click', () => {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+        togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+      });
+
+      // Form submission
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Clear previous errors
+        clearErrors();
+        
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Validation
+        let hasError = false;
+        
+        if (!username) {
+          showError('usernameError', 'Username is required');
+          hasError = true;
+        } else if (username.length < 3 || username.length > 20) {
+          showError('usernameError', 'Username must be 3-20 characters');
+          hasError = true;
+        } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          showError('usernameError', 'Only letters, numbers, and underscores allowed');
+          hasError = true;
+        }
+        
+        if (!email) {
+          showError('emailError', 'Email is required');
+          hasError = true;
+        } else if (!isValidEmail(email)) {
+          showError('emailError', 'Please enter a valid email');
+          hasError = true;
+        }
+        
+        if (!password) {
+          showError('passwordError', 'Password is required');
+          hasError = true;
+        } else if (password.length < 6) {
+          showError('passwordError', 'Password must be at least 6 characters');
+          hasError = true;
+        }
+        
+        if (password !== confirmPassword) {
+          showError('confirmPasswordError', 'Passwords do not match');
+          hasError = true;
+        }
+        
+        if (!agreeTerms) {
+          showError('termsError', 'You must agree to the terms');
+          hasError = true;
+        }
+        
+        if (hasError) return;
+        
+        // Show loading
+        setLoading(submitBtn, true);
+        
+        try {
+          const result = await API.auth.register({ username, email, password, confirmPassword });
+          
+          if (result.success) {
+            // Store token and user data
+            Auth.setAuth(result.data.token, result.data.user);
+            
+            showToast('Account created successfully! Redirecting...', 'success');
+            
+            // Redirect to home
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1000);
+          } else {
+            if (result.field) {
+              showError(result.field + 'Error', result.message);
+            } else {
+              showToast(result.message || 'Registration failed', 'error');
+            }
+          }
+        } catch (error) {
+          console.error('Registration error:', error);
+          showToast(error.message || 'Registration failed. Please try again.', 'error');
+        } finally {
+          setLoading(submitBtn, false);
+        }
+      });
+    });
+
+    function clearErrors() {
+      document.querySelectorAll('.error-message').forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+      });
+      document.querySelectorAll('.form-group').forEach(el => {
+        el.classList.remove('has-error');
+      });
+    }
+
+    function showError(fieldId, message) {
+      const errorEl = document.getElementById(fieldId);
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.style.display = 'block';
+        const formGroup = errorEl.closest('.form-group');
+        if (formGroup) {
+          formGroup.classList.add('has-error');
+        }
+      }
+    }
+
+    function isValidEmail(email) {
+      return /^\S+@\S+\.\S+$/.test(email);
+    }
+
+    function setLoading(btn, loading) {
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Create Account</span><i class="fas fa-arrow-right"></i>';
+      }
+    }
+  </script>
+</body>
+</html>

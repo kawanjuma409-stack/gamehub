@@ -131,7 +131,7 @@ const connectDB = async () => {
   res.send("GameHub is running 🚀");
 });
     // Start server after successful DB connection
-    app.listen(PORT, "0.0.0.0", () => {
+    app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
     

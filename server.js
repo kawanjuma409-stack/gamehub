@@ -131,9 +131,7 @@ const connectDB = async () => {
   res.send("GameHub is running 🚀");
 });
     // Start server after successful DB connection
-    app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
     
   } catch (error) {
     console.error('MongoDB connection error:', error);
@@ -149,3 +147,4 @@ process.on('unhandledRejection', (err) => {
 
 // Start the application
 connectDB();
+gamehub-production-b1f0.up.railway.app

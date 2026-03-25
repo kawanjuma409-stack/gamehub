@@ -127,7 +127,9 @@ const connectDB = async () => {
     });
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);
-    
+    app.get("/", (req, res) => {
+  res.send("GameHub is running 🚀");
+});
     // Start server after successful DB connection
     app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
